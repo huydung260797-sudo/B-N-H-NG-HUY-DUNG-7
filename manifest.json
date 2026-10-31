@@ -1,0 +1,10 @@
+{
+  "name": "HUY DUNG - Quản lý hàng hóa",
+  "short_name": "HUY DUNG",
+  "description": "Quản lý loại hàng, mặt hàng, nhập kho, bán hàng và báo cáo",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f3f6f4",
+  "theme_color": "#14532d",
+  "lang": "vi"
+}

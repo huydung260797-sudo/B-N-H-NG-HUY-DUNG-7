@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14532d">
+<title>HUY DUNG - Quản lý hàng hóa</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--green:#14532d;--green2:#166534;--bg:#f3f6f4;--card:#fff;--text:#17231b;--muted:#647067;--line:#dfe7e1;--red:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+header{background:var(--green);color:#fff;padding:16px max(16px,calc((100% - 1200px)/2));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header h1{font-size:20px;margin:0}header small{opacity:.85}.wrap{max-width:1200px;margin:auto;padding:16px}
+nav{display:flex;gap:8px;overflow:auto;padding:10px 0 14px;position:sticky;top:0;background:var(--bg);z-index:5}
+nav button{white-space:nowrap;border:1px solid var(--line);background:#fff;color:var(--text);border-radius:10px;padding:10px 13px;font-weight:600}
+nav button.active{background:var(--green);color:#fff;border-color:var(--green)}
+section.page{display:none}section.page.active{display:block}
+h2{font-size:21px;margin:8px 0 14px}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.card,.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;box-shadow:0 2px 8px #173b2410}
+.metric small{display:block;color:var(--muted)}.metric strong{font-size:24px;display:block;margin-top:5px}
+.panel{margin:12px 0}.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+input,select,textarea{width:100%;border:1px solid #cbd5ce;border-radius:9px;padding:10px;background:#fff;color:var(--text);font:inherit}
+button{cursor:pointer}.btn{border:0;border-radius:9px;background:var(--green2);color:#fff;padding:10px 14px;font-weight:650}.btn.secondary{background:#e7eee9;color:var(--green)}.btn.danger{background:#feeceb;color:var(--red)}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:13px;color:var(--muted);background:#f8faf8}td.num,th.num{text-align:right;white-space:nowrap}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:10px 0}.toolbar>div{min-width:170px;flex:1}
+.note{background:#eff6f0;border:1px solid #d7e8da;padding:11px;border-radius:10px;color:#31513a;font-size:13px}
+.empty{padding:22px;text-align:center;color:var(--muted)}.pill{display:inline-block;background:#e7eee9;color:var(--green);padding:3px 8px;border-radius:30px;font-size:12px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
+@media(max-width:600px){.wrap{padding:10px}header{padding:14px}.metric strong{font-size:21px}nav{margin:0 -10px;padding-left:10px}}
+</style>
+</head>
+<body>
+<header><div><h1>HUY DUNG</h1><small>QUẢN LÝ HÀNG HÓA & KHO</small></div><span class="pill">Lưu dữ liệu trên thiết bị</span></header>
+<div class="wrap">
+<nav id="nav">
+<button class="active" data-page="home">Tổng quan</button><button data-page="categories">Loại hàng</button><button data-page="products">Mặt hàng</button><button data-page="stock">Nhập kho</button><button data-page="sales">Bán hàng</button><button data-page="reports">Báo cáo ngày/tháng</button><button data-page="backup">Sao lưu & Excel</button>
+</nav>
+<section id="home" class="page active">
+<h2>Tổng quan</h2>
+<div class="grid">
+<div class="card metric"><small>Số loại hàng</small><strong id="mCats">0</strong></div>
+<div class="card metric"><small>Số mặt hàng</small><strong id="mProducts">0</strong></div>
+<div class="card metric"><small>Tổng số lượng tồn</small><strong id="mQty">0</strong></div>
+<div class="card metric"><small>Giá trị tồn kho (giá nhập)</small><strong id="mStock">0 ₫</strong></div>
+<div class="card metric"><small>Doanh thu hôm nay</small><strong id="mRevenue">0 ₫</strong></div>
+<div class="card metric"><small>Lợi nhuận gộp hôm nay</small><strong id="mProfit">0 ₫</strong></div>
+</div>
+<div class="panel"><h3>Hoạt động gần đây</h3><div id="recent" class="muted">Chưa có hoạt động.</div></div>
+<div class="note">Dữ liệu được lưu trong trình duyệt trên thiết bị này. Hãy xuất bản sao lưu định kỳ để tránh mất dữ liệu khi xóa dữ liệu trình duyệt hoặc đổi thiết bị.</div>
+</section>
+
+<section id="categories" class="page">
+<h2>Quản lý loại hàng</h2>
+<div class="panel">
+<h3 id="catFormTitle">Thêm loại hàng</h3><div class="formgrid"><div><label>Tên loại hàng *</label><input id="catName" placeholder="Ví dụ: Đồ uống"></div><div><label>Ghi chú</label><input id="catNote" placeholder="Ghi chú (không bắt buộc)"></div></div>
+<div class="actions"><button class="btn" id="catSave">Thêm loại hàng</button><button class="btn secondary" id="catCancel" hidden>Hủy sửa</button></div>
+</div>
+<div class="panel"><div class="toolbar"><div><label>Tìm loại hàng</label><input id="catSearch" placeholder="Nhập tên loại hàng..."></div></div><div class="tablewrap"><table><thead><tr><th>Tên loại hàng</th><th>Ghi chú</th><th class="num">Số mặt hàng</th><th>Thao tác</th></tr></thead><tbody id="catRows"></tbody></table></div></div>
+</section>
+
+<section id="products" class="page">
+<h2>Quản lý mặt hàng</h2>
+<div class="panel"><h3 id="productFormTitle">Thêm mặt hàng</h3>
+<div class="formgrid">
+<div><label>Tên mặt hàng *</label><input id="pName" placeholder="Tên mặt hàng"></div>
+<div><label>Loại hàng *</label><select id="pCat"></select></div>
+<div><label>Đơn vị tính</label><input id="pUnit" placeholder="Cái, kg, hộp..."></div>
+<div><label>Giá nhập (₫) *</label><input id="pCost" type="number" min="0" step="1" placeholder="0"></div>
+<div><label>Giá bán (₫) *</label><input id="pPrice" type="number" min="0" step="1" placeholder="0"></div>
+<div><label>Ghi chú</label><input id="pNote" placeholder="Ghi chú"></div>
+</div><div class="actions"><button class="btn" id="pSave">Thêm mặt hàng</button><button class="btn secondary" id="pCancel" hidden>Hủy sửa</button></div></div>
+<div class="panel"><div class="toolbar"><div><label>Tìm mặt hàng</label><input id="pSearch" placeholder="Tên hoặc mã hàng..."></div><div><label>Lọc loại hàng</label><select id="pFilterCat"></select></div></div>
+<div class="tablewrap"><table><thead><tr><th>Mã / Tên mặt hàng</th><th>Loại hàng</th><th>Đơn vị</th><th class="num">Giá nhập</th><th class="num">Giá bán</th><th class="num">Tồn kho</th><th>Thao tác</th></tr></thead><tbody id="pRows"></tbody></table></div></div>
+</section>
+
+<section id="stock" class="page">
+<h2>Nhập hàng – Tồn kho</h2>
+<div class="panel"><h3 id="stockFormTitle">Tạo phiếu nhập kho</h3><div class="formgrid">
+<div><label>Ngày nhập *</label><input id="sDate" type="date"></div><div><label>Mặt hàng *</label><select id="sProduct"></select></div><div><label>Số lượng nhập *</label><input id="sQty" type="number" min="1" step="any" placeholder="0"></div><div><label>Giá nhập mỗi đơn vị (₫) *</label><input id="sCost" type="number" min="0" step="1" placeholder="Tự lấy giá nhập hiện tại"></div><div><label>Ghi chú</label><input id="sNote" placeholder="Nhà cung cấp, ghi chú..."></div>
+</div><div class="actions"><button class="btn" id="sSave">Lưu phiếu nhập</button><button class="btn secondary" id="sCancel" hidden>Hủy sửa</button></div></div>
+<div class="panel"><h3>Lịch sử nhập kho</h3><div class="toolbar"><div><label>Lọc theo tháng</label><input id="sMonth" type="month"></div></div><div class="tablewrap"><table><thead><tr><th>Ngày</th><th>Mặt hàng</th><th class="num">Số lượng</th><th class="num">Giá nhập</th><th class="num">Thành tiền</th><th>Ghi chú</th><th>Thao tác</th></tr></thead><tbody id="sRows"></tbody></table></div></div>
+</section>
+
+<section id="sales" class="page">
+<h2>Quản lý bán hàng</h2>
+<div class="panel"><h3 id="saleFormTitle">Ghi nhận bán hàng</h3><div class="formgrid">
+<div><label>Ngày bán *</label><input id="saleDate" type="date"></div><div><label>Mặt hàng *</label><select id="saleProduct"></select></div><div><label>Số lượng bán *</label><input id="saleQty" type="number" min="1" step="any" placeholder="0"></div><div><label>Giá bán mỗi đơn vị (₫) *</label><input id="salePrice" type="number" min="0" step="1" placeholder="Tự lấy giá bán hiện tại"></div><div><label>Ghi chú</label><input id="saleNote" placeholder="Ghi chú"></div>
+</div><div class="actions"><button class="btn" id="saleSave">Lưu bán hàng</button><button class="btn secondary" id="saleCancel" hidden>Hủy sửa</button></div><p class="muted" id="stockHint"></p></div>
+<div class="panel"><h3>Lịch sử bán hàng</h3><div class="toolbar"><div><label>Lọc theo tháng</label><input id="saleMonth" type="month"></div></div><div class="tablewrap"><table><thead><tr><th>Ngày</th><th>Mặt hàng</th><th class="num">Số lượng</th><th class="num">Giá bán</th><th class="num">Doanh thu</th><th class="num">Lợi nhuận gộp</th><th>Thao tác</th></tr></thead><tbody id="saleRows"></tbody></table></div></div>
+</section>
+
+<section id="reports" class="page">
+<h2>Báo cáo doanh thu & lợi nhuận</h2>
+<div class="panel"><div class="toolbar"><div><label>Chọn ngày</label><input id="reportDate" type="date"></div><div><label>Chọn tháng</label><input id="reportMonth" type="month"></div><div><button class="btn" id="refreshReport">Cập nhật báo cáo</button></div></div>
+<h3>Báo cáo ngày</h3><div class="grid" id="dayMetrics"></div><h3>Bán hàng trong ngày</h3><div class="tablewrap"><table><thead><tr><th>Mặt hàng</th><th class="num">SL bán</th><th class="num">Doanh thu</th><th class="num">Vốn hàng bán</th><th class="num">Lợi nhuận gộp</th></tr></thead><tbody id="dayRows"></tbody></table></div>
+<hr style="border:0;border-top:1px solid var(--line);margin:20px 0"><h3>Báo cáo tháng</h3><div class="grid" id="monthMetrics"></div><h3>Chi tiết bán hàng trong tháng</h3><div class="tablewrap"><table><thead><tr><th>Ngày</th><th>Mặt hàng</th><th class="num">SL bán</th><th class="num">Doanh thu</th><th class="num">Lợi nhuận gộp</th></tr></thead><tbody id="monthRows"></tbody></table></div>
+</div><div class="note">Lợi nhuận gộp = doanh thu − giá vốn hàng bán. Giá vốn được chốt theo giá nhập của mặt hàng tại thời điểm ghi nhận giao dịch. Báo cáo nhập hàng là dòng tiền mua vào, không trừ trực tiếp khỏi lợi nhuận gộp.</div>
+</section>
+
+<section id="backup" class="page">
+<h2>Sao lưu & xuất Excel</h2>
+<div class="panel"><h3>Sao lưu dữ liệu</h3><p class="muted">Tải xuống toàn bộ loại hàng, mặt hàng, phiếu nhập và giao dịch bán dưới dạng JSON để khôi phục khi cần.</p><div class="actions"><button class="btn" id="backupBtn">Tải bản sao lưu JSON</button><label class="btn secondary" style="display:inline-block">Khôi phục JSON<input id="restoreFile" type="file" accept=".json,application/json" hidden></label></div></div>
+<div class="panel"><h3>Xuất báo cáo Excel</h3><p class="muted">Xuất file Excel tương thích (.xlsx) gồm các trang: Loại hàng, Mặt hàng & tồn kho, Nhập kho, Bán hàng, Báo cáo ngày/tháng. Cần có kết nối Internet để tải thư viện xuất Excel lần đầu; nếu không có, ứng dụng sẽ xuất CSV mở được bằng Excel.</p><div class="actions"><button class="btn" id="excelBtn">Xuất toàn bộ Excel</button><button class="btn secondary" id="csvBtn">Xuất CSV bán hàng</button></div></div>
+<div class="panel"><h3>Lưu ý dữ liệu</h3><ul><li>Dữ liệu lưu cục bộ trong trình duyệt, không tự đồng bộ giữa các thiết bị.</li><li>Không xóa dữ liệu trình duyệt nếu chưa sao lưu.</li><li>Khi sửa hoặc xóa phiếu nhập/bán, tồn kho sẽ được tính lại từ lịch sử giao dịch.</li></ul></div>
+</section>
+<footer>HUY DUNG · Quản lý hàng hóa · Phiên bản 1.0</footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+const KEY='huy_dung_inventory_v1';
+const today=()=>new Date().toLocaleDateString('en-CA');
+const monthNow=()=>today().slice(0,7);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const money=n=>(Number(n)||0).toLocaleString('vi-VN')+' ₫';
+const num=n=>(Number(n)||0).toLocaleString('vi-VN',{maximumFractionDigits:3});
+let db=load(), editCat=null,editProduct=null,editStock=null,editSale=null;
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{categories:[],products:[],stocks:[],sales:[]}}catch(e){return {categories:[],products:[],stocks:[],sales:[]}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function catName(id){return db.categories.find(x=>x.id===id)?.name||'Đã xóa loại'}
+function product(id){return db.products.find(x=>x.id===id)}
+function productName(id){return product(id)?.name||'Mặt hàng đã xóa'}
+function qtyOnHand(id){return db.stocks.filter(x=>x.productId===id).reduce((a,x)=>a+Number(x.qty),0)-db.sales.filter(x=>x.productId===id).reduce((a,x)=>a+Number(x.qty),0)}
+function total(arr,fn){return arr.reduce((a,x)=>a+fn(x),0)}
+function setOptions(el,items,placeholder){let old=el.value;el.innerHTML=`<option value="">${placeholder}</option>`+items.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');if(items.some(x=>x.id===old))el.value=old}
+function showPage(id){document.querySelectorAll('section.page').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+function resetCat(){editCat=null;catNameInput.value='';catNote.value='';catFormTitle.textContent='Thêm loại hàng';catSave.textContent='Thêm loại hàng';catCancel.hidden=true}
+const catNameInput=document.getElementById('catName'),catNote=document.getElementById('catNote'),catSave=document.getElementById('catSave'),catCancel=document.getElementById('catCancel'),catFormTitle=document.getElementById('catFormTitle');
+catSave.onclick=()=>{let name=catNameInput.value.trim();if(!name)return alert('Vui lòng nhập tên loại hàng.');if(db.categories.some(x=>x.name.toLowerCase()===name.toLowerCase()&&x.id!==editCat))return alert('Tên loại hàng đã tồn tại.');if(editCat){Object.assign(db.categories.find(x=>x.id===editCat),{name,note:catNote.value.trim()})}else db.categories.push({id:uid(),name,note:catNote.value.trim()});resetCat();save()};
+catCancel.onclick=resetCat;
+function editCategory(id){let x=db.categories.find(x=>x.id===id);if(!x)return;editCat=id;catNameInput.value=x.name;catNote.value=x.note||'';catFormTitle.textContent='Sửa loại hàng';catSave.textContent='Lưu thay đổi';catCancel.hidden=false;showPage('categories')}
+function deleteCategory(id){if(db.products.some(p=>p.categoryId===id))return alert('Loại hàng này còn mặt hàng. Hãy chuyển hoặc xóa các mặt hàng trước.');if(confirm('Xóa loại hàng này?')){db.categories=db.categories.filter(x=>x.id!==id);save()}}
+function resetProduct(){editProduct=null;['pName','pUnit','pCost','pPrice','pNote'].forEach(id=>document.getElementById(id).value='');pFormTitle.textContent='Thêm mặt hàng';pSave.textContent='Thêm mặt hàng';pCancel.hidden=true}
+const pFormTitle=document.getElementById('productFormTitle'),pSave=document.getElementById('pSave'),pCancel=document.getElementById('pCancel');
+pSave.onclick=()=>{let name=pName.value.trim(),categoryId=pCat.value,cost=Number(pCost.value),price=Number(pPrice.value);if(!name||!categoryId||pCost.value===''||pPrice.value===''||cost<0||price<0)return alert('Vui lòng nhập tên, loại hàng, giá nhập và giá bán hợp lệ.');if(db.products.some(x=>x.name.toLowerCase()===name.toLowerCase()&&x.id!==editProduct))return alert('Tên mặt hàng đã tồn tại.');let data={name,categoryId,unit:pUnit.value.trim()||'cái',cost,price,note:pNote.value.trim()};if(editProduct)Object.assign(product(editProduct),data);else db.products.push({id:uid(),code:'HD'+String(db.products.length+1).padStart(4,'0'),...data});resetProduct();save()};
+pCancel.onclick=resetProduct;
+function editProd(id){let p=product(id);if(!p)return;editProduct=id;pName.value=p.name;pCat.value=p.categoryId;pUnit.value=p.unit;pCost.value=p.cost;pPrice.value=p.price;pNote.value=p.note||'';pFormTitle.textContent='Sửa mặt hàng';pSave.textContent='Lưu thay đổi';pCancel.hidden=false;showPage('products')}
+function deleteProd(id){if(db.stocks.some(x=>x.productId===id)||db.sales.some(x=>x.productId===id))return alert('Mặt hàng đã có lịch sử nhập/bán nên không thể xóa để bảo toàn báo cáo. Bạn có thể sửa tên hoặc ngừng sử dụng mặt hàng.');if(confirm('Xóa mặt hàng này?')){db.products=db.products.filter(x=>x.id!==id);save()}}
+function resetStock(){editStock=null;sDate.value=today();sProduct.value='';sQty.value='';sCost.value='';sNote.value='';stockFormTitle.textContent='Tạo phiếu nhập kho';sSave.textContent='Lưu phiếu nhập';sCancel.hidden=true}
+const stockFormTitle=document.getElementById('stockFormTitle'),sSave=document.getElementById('sSave'),sCancel=document.getElementById('sCancel');
+sProduct.onchange=()=>{let p=product(sProduct.value);if(p)sCost.value=p.cost};
+sSave.onclick=()=>{let p=product(sProduct.value),qty=Number(sQty.value),cost=Number(sCost.value);if(!p||!sDate.value||!sQty.value||qty<=0||sCost.value===''||cost<0)return alert('Vui lòng nhập đầy đủ thông tin phiếu nhập.');let d={date:sDate.value,productId:p.id,qty,cost,note:sNote.value.trim()};if(editStock)Object.assign(db.stocks.find(x=>x.id===editStock),d);else db.stocks.push({id:uid(),...d});resetStock();save()};
+sCancel.onclick=resetStock;
+function editStockRow(id){let x=db.stocks.find(x=>x.id===id);if(!x)return;editStock=id;sDate.value=x.date;sProduct.value=x.productId;sQty.value=x.qty;sCost.value=x.cost;sNote.value=x.note||'';stockFormTitle.textContent='Sửa phiếu nhập';sSave.textContent='Lưu thay đổi';sCancel.hidden=false;showPage('stock')}
+function deleteStock(id){if(confirm('Xóa phiếu nhập? Tồn kho sẽ được tính lại.')){db.stocks=db.stocks.filter(x=>x.id!==id);save()}}
+function resetSale(){editSale=null;saleDate.value=today();saleProduct.value='';saleQty.value='';salePrice.value='';saleNote.value='';saleFormTitle.textContent='Ghi nhận bán hàng';saleSave.textContent='Lưu bán hàng';saleCancel.hidden=true;stockHint.textContent=''}
+const saleFormTitle=document.getElementById('saleFormTitle'),saleSave=document.getElementById('saleSave'),saleCancel=document.getElementById('saleCancel');
+saleProduct.onchange=()=>{let p=product(saleProduct.value);if(p){salePrice.value=p.price;stockHint.textContent='Tồn hiện tại: '+num(qtyOnHand(p.id))+' '+p.unit}};
+saleSave.onclick=()=>{let p=product(saleProduct.value),qty=Number(saleQty.value),price=Number(salePrice.value);if(!p||!saleDate.value||!saleQty.value||qty<=0||salePrice.value===''||price<0)return alert('Vui lòng nhập đầy đủ thông tin bán hàng.');let available=qtyOnHand(p.id)+(editSale?Number(db.sales.find(x=>x.id===editSale)?.qty||0):0);if(qty>available)return alert('Không đủ tồn kho. Số lượng hiện có: '+num(available));let d={date:saleDate.value,productId:p.id,qty,price,costAtSale:Number(p.cost),note:saleNote.value.trim()};if(editSale)Object.assign(db.sales.find(x=>x.id===editSale),d);else db.sales.push({id:uid(),...d});resetSale();save()};
+saleCancel.onclick=resetSale;
+function editSaleRow(id){let x=db.sales.find(x=>x.id===id);if(!x)return;editSale=id;saleDate.value=x.date;saleProduct.value=x.productId;saleQty.value=x.qty;salePrice.value=x.price;saleNote.value=x.note||'';saleFormTitle.textContent='Sửa giao dịch bán';saleSave.textContent='Lưu thay đổi';saleCancel.hidden=false;showPage('sales')}
+function deleteSale(id){if(confirm('Xóa giao dịch bán? Tồn kho sẽ được tính lại.')){db.sales=db.sales.filter(x=>x.id!==id);save()}}
+function render(){
+setOptions(pCat,db.categories,'-- Chọn loại hàng --');setOptions(pFilterCat,db.categories,'-- Tất cả loại hàng --');setOptions(sProduct,db.products,'-- Chọn mặt hàng --');setOptions(saleProduct,db.products,'-- Chọn mặt hàng --');
+catRows.innerHTML=db.categories.filter(x=>x.name.toLowerCase().includes(catSearch.value.toLowerCase())).map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.note||'')}</td><td class="num">${db.products.filter(p=>p.categoryId===x.id).length}</td><td><button class="btn secondary" onclick="editCategory('${x.id}')">Sửa</button> <button class="btn danger" onclick="deleteCategory('${x.id}')">Xóa</button></td></tr>`).join('')||'<tr><td colspan="4" class="empty">Chưa có loại hàng</td></tr>';
+pRows.innerHTML=db.products.filter(x=>(x.name+' '+x.code).toLowerCase().includes(pSearch.value.toLowerCase())&&(!pFilterCat.value||x.categoryId===pFilterCat.value)).map(x=>`<tr><td><b>${esc(x.name)}</b><br><small class="muted">${esc(x.code)}</small></td><td>${esc(catName(x.categoryId))}</td><td>${esc(x.unit)}</td><td class="num">${money(x.cost)}</td><td class="num">${money(x.price)}</td><td class="num">${num(qtyOnHand(x.id))}</td><td><button class="btn secondary" onclick="editProd('${x.id}')">Sửa</button> <button class="btn danger" onclick="deleteProd('${x.id}')">Xóa</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">Chưa có mặt hàng</td></tr>';
+let sm=sMonth.value||monthNow(), salesm=saleMonth.value||monthNow();
+sRows.innerHTML=db.stocks.filter(x=>x.date.startsWith(sm)).slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<tr><td>${x.date}</td><td>${esc(productName(x.productId))}</td><td class="num">${num(x.qty)}</td><td class="num">${money(x.cost)}</td><td class="num">${money(x.qty*x.cost)}</td><td>${esc(x.note||'')}</td><td><button class="btn secondary" onclick="editStockRow('${x.id}')">Sửa</button> <button class="btn danger" onclick="deleteStock('${x.id}')">Xóa</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">Không có phiếu nhập trong tháng</td></tr>';
+saleRows.innerHTML=db.sales.filter(x=>x.date.startsWith(salesm)).slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<tr><td>${x.date}</td><td>${esc(productName(x.productId))}</td><td class="num">${num(x.qty)}</td><td class="num">${money(x.price)}</td><td class="num">${money(x.qty*x.price)}</td><td class="num">${money(x.qty*(x.price-x.costAtSale))}</td><td><button class="btn secondary" onclick="editSaleRow('${x.id}')">Sửa</button> <button class="btn danger" onclick="deleteSale('${x.id}')">Xóa</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">Không có giao dịch trong tháng</td></tr>';
+let d=today(),todaySales=db.sales.filter(x=>x.date===d),qty=db.products.reduce((a,p)=>a+qtyOnHand(p.id),0),stockValue=total(db.products,p=>qtyOnHand(p.id)*p.cost);
+mCats.textContent=db.categories.length;mProducts.textContent=db.products.length;mQty.textContent=num(qty);mStock.textContent=money(stockValue);mRevenue.textContent=money(total(todaySales,x=>x.qty*x.price));mProfit.textContent=money(total(todaySales,x=>x.qty*(x.price-x.costAtSale)));
+recent.innerHTML=[...db.sales.map(x=>({date:x.date,text:'Bán '+productName(x.productId)+' · '+money(x.qty*x.price)})),...db.stocks.map(x=>({date:x.date,text:'Nhập '+productName(x.productId)+' · '+num(x.qty)+' '+(product(x.productId)?.unit||'')}))].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6).map(x=>`<p>${x.date} — ${esc(x.text)}</p>`).join('')||'Chưa có hoạt động.';
+renderReports();
+}
+function metric(label,value){return `<div class="card metric"><small>${label}</small><strong>${money(value)}</strong></div>`}
+function renderReports(){
+let d=reportDate.value||today(),m=reportMonth.value||monthNow(),ds=db.sales.filter(x=>x.date===d),ms=db.sales.filter(x=>x.date.startsWith(m)),di=db.stocks.filter(x=>x.date===d),mi=db.stocks.filter(x=>x.date.startsWith(m));
+let rev=total(ds,x=>x.qty*x.price),cost=total(ds,x=>x.qty*x.costAtSale),mrev=total(ms,x=>x.qty*x.price),mcost=total(ms,x=>x.qty*x.costAtSale);
+dayMetrics.innerHTML=metric('Doanh thu',rev)+metric('Vốn hàng bán',cost)+metric('Lợi nhuận gộp',rev-cost)+metric('Tiền nhập kho',total(di,x=>x.qty*x.cost));
+dayRows.innerHTML=ds.map(x=>`<tr><td>${esc(productName(x.productId))}</td><td class="num">${num(x.qty)}</td><td class="num">${money(x.qty*x.price)}</td><td class="num">${money(x.qty*x.costAtSale)}</td><td class="num">${money(x.qty*(x.price-x.costAtSale))}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Không có bán hàng ngày này</td></tr>';
+monthMetrics.innerHTML=metric('Doanh thu tháng',mrev)+metric('Vốn hàng bán',mcost)+metric('Lợi nhuận gộp',mrev-mcost)+metric('Tiền nhập kho tháng',total(mi,x=>x.qty*x.cost));
+monthRows.innerHTML=ms.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(x=>`<tr><td>${x.date}</td><td>${esc(productName(x.productId))}</td><td class="num">${num(x.qty)}</td><td class="num">${money(x.qty*x.price)}</td><td class="num">${money(x.qty*(x.price-x.costAtSale))}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Không có bán hàng tháng này</td></tr>';
+}
+['catSearch','pSearch','pFilterCat','sMonth','saleMonth'].forEach(id=>document.getElementById(id).addEventListener('input',render));
+['reportDate','reportMonth'].forEach(id=>document.getElementById(id).value=id==='reportDate'?today():monthNow());
+refreshReport.onclick=renderReports;
+function download(name,blob){let a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+backupBtn.onclick=()=>download('huy-dung-backup-'+today()+'.json',new Blob([JSON.stringify(db,null,2)],{type:'application/json'}));
+restoreFile.onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let x=JSON.parse(await f.text());if(!Array.isArray(x.categories)||!Array.isArray(x.products)||!Array.isArray(x.stocks)||!Array.isArray(x.sales))throw Error();if(confirm('Khôi phục sẽ thay thế toàn bộ dữ liệu hiện tại. Bạn chắc chắn chứ?')){db=x;save();alert('Đã khôi phục dữ liệu.')}}catch(err){alert('File sao lưu không hợp lệ.')}e.target.value=''};
+function exportRows(){return {
+'Loai hang':db.categories.map(x=>({Ten:x.name,Ghi_chu:x.note||''})),
+'Mat hang ton kho':db.products.map(x=>({Ma:x.code,Ten:x.name,Loai:catName(x.categoryId),Don_vi:x.unit,Gia_nhap:x.cost,Gia_ban:x.price,Ton_kho:qtyOnHand(x.id),Gia_tri_ton:qtyOnHand(x.id)*x.cost})),
+'Nhap kho':db.stocks.map(x=>({Ngay:x.date,Mat_hang:productName(x.productId),So_luong:x.qty,Gia_nhap:x.cost,Thanh_tien:x.qty*x.cost,Ghi_chu:x.note||''})),
+'Ban hang':db.sales.map(x=>({Ngay:x.date,Mat_hang:productName(x.productId),So_luong:x.qty,Gia_ban:x.price,Doanh_thu:x.qty*x.price,Von:x.qty*x.costAtSale,Loi_nhuan:x.qty*(x.price-x.costAtSale),Ghi_chu:x.note||''})),
+'Bao cao ngay':[...new Set([...db.sales.map(x=>x.date),...db.stocks.map(x=>x.date)])].sort().map(d=>{let a=db.sales.filter(x=>x.date===d),b=db.stocks.filter(x=>x.date===d),r=total(a,x=>x.qty*x.price),c=total(a,x=>x.qty*x.costAtSale);return {Ngay:d,Doanh_thu:r,Von_hang_ban:c,Loi_nhuan_gop:r-c,Tien_nhap_kho:total(b,x=>x.qty*x.cost)}}),
+'Bao cao thang':[...new Set([...db.sales.map(x=>x.date.slice(0,7)),...db.stocks.map(x=>x.date.slice(0,7))])].sort().map(m=>{let a=db.sales.filter(x=>x.date.startsWith(m)),b=db.stocks.filter(x=>x.date.startsWith(m)),r=total(a,x=>x.qty*x.price),c=total(a,x=>x.qty*x.costAtSale);return {Thang:m,Doanh_thu:r,Von_hang_ban:c,Loi_nhuan_gop:r-c,Tien_nhap_kho:total(b,x=>x.qty*x.cost)}})
+}}
+excelBtn.onclick=()=>{let sheets=exportRows();if(window.XLSX){let wb=XLSX.utils.book_new();Object.entries(sheets).forEach(([n,rows])=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),n.slice(0,31)));XLSX.writeFile(wb,'HUY_DUNG_Bao_Cao_'+today()+'.xlsx')}else{let rows=sheets['Ban hang'];let keys=Object.keys(rows[0]||{Ngay:'',Mat_hang:'',So_luong:'',Gia_ban:'',Doanh_thu:'',Von:'',Loi_nhuan:''});let csv=[keys.join(','),...rows.map(r=>keys.map(k=>'"'+String(r[k]??'').replace(/"/g,'""')+'"').join(','))].join('\r\n');download('HUY_DUNG_Ban_Hang.csv',new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));alert('Không tải được thư viện Excel; đã xuất CSV bán hàng để mở bằng Excel.')}}
+csvBtn.onclick=()=>{let rows=exportRows()['Ban hang'],keys=Object.keys(rows[0]||{Ngay:'',Mat_hang:'',So_luong:'',Gia_ban:'',Doanh_thu:'',Von:'',Loi_nhuan:''});let csv=[keys.join(','),...rows.map(r=>keys.map(k=>'"'+String(r[k]??'').replace(/"/g,'""')+'"').join(','))].join('\r\n');download('HUY_DUNG_Ban_Hang.csv',new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}))};
+sDate.value=today();saleDate.value=today();sMonth.value=monthNow();saleMonth.value=monthNow();render();
+if('serviceWorker' in navigator && location.protocol!=='file:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script>
+</body></html>
